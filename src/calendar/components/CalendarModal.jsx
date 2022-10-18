@@ -1,5 +1,7 @@
-import {useState} from "react";
-import {addHours} from "date-fns";
+import {useMemo, useState} from "react";
+import {addHours, differenceInSeconds} from "date-fns";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 import Modal from "react-modal";
 import DatePicker, {registerLocale} from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -22,6 +24,10 @@ Modal.setAppElement("#root");
 export const CalendarModal = () => {
 	const [isModalOpen, setisModalOpen] = useState(true);
 
+	//Cuando la persona haga el submit, lo controlamos
+	//por medio de un estado
+	const [formSubmitted, setFormSubmitted] = useState(false);
+
 	//Vamos a controlar el estado de un formulario
 	//Con addHours agregamos mas hora a la fecha actual
 	//esto es posible gracias a la librería date-fns
@@ -31,6 +37,14 @@ export const CalendarModal = () => {
 		start: new Date(),
 		end: addHours(new Date(), 2),
 	});
+
+	//Este valor se va a memorizar unicamente si el
+	// formValue.title cambia o el formSubmitted cambia
+	const titleClass = useMemo(() => {
+		if (!formSubmitted) return "";
+
+		return formValues.title.length > 0 ? "is-valid" : "is-invalid";
+	}, [formValues.title, formSubmitted]);
 
 	const onInputChanged = ({target}) => {
 		setFormValues({
@@ -51,6 +65,31 @@ export const CalendarModal = () => {
 		setisModalOpen(false);
 	};
 
+	const onSubmit = (event) => {
+		//Evitamos el esparcimiento del formulario
+		event.preventDefault();
+		setFormSubmitted(true);
+
+		//Validamos que la fecha final sea mayor
+		const difference = differenceInSeconds(formValues.end, formValues.start);
+
+		console.log({difference});
+		//EN esta condicipon aseguramos que no sean vacias las fechas
+		//o sea menor
+		if (isNaN(difference) || difference <= 0) {
+			Swal.fire("Fechas incorrectas", "Revisar las fechas ingresadas", "error");
+			return;
+		}
+		//Validamos el titulo
+		if (formValues.title.length <= 0) return;
+
+		console.log(formValues);
+
+		//todos
+		//Remover errores en pantalla
+		//cerrar modal
+	};
+
 	return (
 		<Modal
 			isOpen={isModalOpen}
@@ -62,7 +101,7 @@ export const CalendarModal = () => {
 		>
 			<h6>Modal, Con la librería react-modal</h6>
 			<h1> Nuevo evento </h1>
-			<form className="container">
+			<form className="container" onSubmit={onSubmit}>
 				<div className="form-group mb-2">
 					<label>Fecha y hora inicio</label>
 					<DatePicker
@@ -95,7 +134,7 @@ export const CalendarModal = () => {
 					<label>Titulo y notas</label>
 					<input
 						type="text"
-						className="form-control"
+						className={`form-control ${titleClass}`}
 						placeholder="Título del evento"
 						name="title"
 						autoComplete="off"
