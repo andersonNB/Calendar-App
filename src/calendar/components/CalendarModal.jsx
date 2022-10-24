@@ -1,4 +1,4 @@
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {addHours, differenceInSeconds} from "date-fns";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
@@ -6,6 +6,7 @@ import Modal from "react-modal";
 import DatePicker, {registerLocale} from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import es from "date-fns/locale/es";
+import {useCalendarStore, useUiStore} from "../../hooks";
 
 registerLocale("es", es);
 const customStyles = {
@@ -22,7 +23,11 @@ const customStyles = {
 Modal.setAppElement("#root");
 
 export const CalendarModal = () => {
-	const [isModalOpen, setisModalOpen] = useState(true);
+	const {isDateModalOpen, closeDateModal} = useUiStore();
+	const {activeEvent, startSavingEvent} = useCalendarStore();
+
+	//Ya no necesitamos el estado local, ahora utilizaremos el store
+	//const [isModalOpen, setisModalOpen] = useState(true);
 
 	//Cuando la persona haga el submit, lo controlamos
 	//por medio de un estado
@@ -46,6 +51,15 @@ export const CalendarModal = () => {
 		return formValues.title.length > 0 ? "is-valid" : "is-invalid";
 	}, [formValues.title, formSubmitted]);
 
+	//Utilizando el useEffect estamos pendientes para setear los cambios
+	//del evento activo, es decir este efecto estara pendiente de cuando cambie
+	// el evento activo
+	useEffect(() => {
+		if (activeEvent !== null) {
+			setFormValues({...activeEvent});
+		}
+	}, [activeEvent]);
+
 	const onInputChanged = ({target}) => {
 		setFormValues({
 			...formValues,
@@ -62,10 +76,11 @@ export const CalendarModal = () => {
 
 	const onCloseModal = () => {
 		console.log("cerrando modal");
-		setisModalOpen(false);
+		//setisModalOpen(false);
+		closeDateModal();
 	};
 
-	const onSubmit = (event) => {
+	const onSubmit = async (event) => {
 		//Evitamos el esparcimiento del formulario
 		event.preventDefault();
 		setFormSubmitted(true);
@@ -87,12 +102,14 @@ export const CalendarModal = () => {
 
 		//todos
 		//Remover errores en pantalla
-		//cerrar modal
+		await startSavingEvent(formValues);
+		closeDateModal();
+		setFormSubmitted(false);
 	};
 
 	return (
 		<Modal
-			isOpen={isModalOpen}
+			isOpen={isDateModalOpen}
 			onRequestClose={onCloseModal}
 			style={customStyles}
 			className="modal"
