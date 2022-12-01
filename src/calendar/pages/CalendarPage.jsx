@@ -3,7 +3,7 @@ import {Calendar} from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import {Navbar, CalendarEvent, CalendarModal, FabAddNew, FabDelete} from "../";
 import {localizer, getMessagesEs} from "../../helpers";
-import {useUiStore, useCalendarStore} from "../../hooks";
+import {useUiStore, useCalendarStore, useAuthStore} from "../../hooks";
 
 //Estos events deben venir del store
 // const events = [
@@ -19,6 +19,10 @@ import {useUiStore, useCalendarStore} from "../../hooks";
 
 //este componente se renderizara cuando este en la ruta correcta
 export const CalendarPage = () => {
+
+
+	const {user} = useAuthStore();
+
 	//Utilizamos la función de nuestro hook y este a su vez
 	//controla el store
 	const {openDateModal} = useUiStore();
@@ -34,8 +38,12 @@ export const CalendarPage = () => {
 	const eventStyleGetter = (event, startend, endDate, isSelected) => {
 		//console.log({event, startend, endDate, isSelected});
 
+		//Si es un evento del usuario en sesión lo mostrara en azul,
+		//pero si no lo mostrara en gris
+		const isMyEvent = (user.uid === event.user._id) || (user.uid === event.user.uid);
+
 		const style = {
-			backgroundColor: "#347CF7",
+			backgroundColor: isMyEvent ? "#347CF7" : "#465660",
 			borderRadius: "0px",
 			opacity: 0.8,
 			color: "white",

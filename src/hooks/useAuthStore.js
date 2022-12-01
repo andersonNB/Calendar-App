@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux"
 import calendarApi from "../api/calendarApi";
-import { clearErrorMessage, onChecking, onLogin, onLogout } from "../store";
+import { clearErrorMessage, onChecking, onClearCalendar, onLogin, onLogout } from "../store";
 
 
 //Este hook tiene como objetivo interactuar con nuestro
@@ -9,6 +9,7 @@ export const useAuthStore = ()=>{
 
 
     const {status,user,errorMessage} = useSelector(state=>state.auth);
+    
     const dispatch = useDispatch();
 
     //Recibe un objeto con dos propiedades el email y el password
@@ -106,7 +107,9 @@ export const useAuthStore = ()=>{
     const startLogout = () =>{
 
         localStorage.clear();
+        dispatch(onClearCalendar());
         dispatch(onLogout());
+
 
     }
 
