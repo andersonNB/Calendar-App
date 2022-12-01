@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Calendar} from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import {Navbar, CalendarEvent, CalendarModal, FabAddNew, FabDelete} from "../";
@@ -22,7 +22,7 @@ export const CalendarPage = () => {
 	//Utilizamos la función de nuestro hook y este a su vez
 	//controla el store
 	const {openDateModal} = useUiStore();
-	const {events, setActiveEvents} = useCalendarStore();
+	const {events, setActiveEvents, startLoadingEvents} = useCalendarStore();
 
 	//Podriamos almacenar estos cambios en el store,
 	//pero como es algo minimo sin muchas afectaciones en la
@@ -58,6 +58,12 @@ export const CalendarPage = () => {
 		localStorage.setItem("lastView", event);
 		setlastView(event);
 	};
+
+	useEffect(() => {
+		startLoadingEvents()
+	}, [])
+	
+
 
 	return (
 		<>
