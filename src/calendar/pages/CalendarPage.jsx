@@ -6,10 +6,10 @@ import {localizer, getMessagesEs} from "../../helpers";
 import {useUiStore, useCalendarStore, useAuthStore} from "../../hooks";
 
 //Estos events deben venir del store
-// const events = [
+// const events2 = [
 // 	{
-// 		bgColor: "#fafafa",
-// 		end: addHours(new Date(), 2),
+// 		bgColor: "#faf",
+// 		end: new Date()/*addHours(new Date(), 2)*/,
 // 		user: {_id: "123", name: "Anderson"},
 // 		notes: "Hay que comprar el pastel",
 // 		start: new Date(),
@@ -70,8 +70,7 @@ export const CalendarPage = () => {
 	useEffect(() => {
 		startLoadingEvents()
 	}, [])
-	
-
+// console.log(events)
 
 	return (
 		<>
